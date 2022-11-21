@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Stock;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Requests\Stock\StoreStockRequest;
+use App\Http\Requests\Stock\UpdateStockRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -46,7 +47,8 @@ class StockController extends BaseController
             $input['numero'] = $stockNumber;
             $input['nombre_moto'] = 0;
             $stock = Stock::create($input);
-            return $this->sendResponse($stock, 'Stock ajouté avec succès');
+            $stock_response = Stock::find($stock->id)->load('moto');
+            return $this->sendResponse($stock_response, 'Stock ajouté avec succès');
         } catch (\Throwable $th) {
             return $this->sendError('Une erreur est survenu', $th->getMessage());
         }
@@ -73,25 +75,15 @@ class StockController extends BaseController
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  $id
+     * @param  Stock $stock $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(UpdateStockRequest $request, Stock $stock)
     {
-        $validate = Validator::make($request->all(), [
-            'nom_fournisseur' => 'required',
-            'numero_fournisseur' => 'required',
-        ]);
-        if ($validate->fails()) {
-            return $this->sendError('Veuillez remplir tous les champs', $validate->errors(), 400);
-        }
         try {
-            $stock = Stock::find($id);
-            if (is_null($stock)) {
-                return $this->sendError('Stock non trouvé');
-            }
             $stock->update($request->all());
-            return $this->sendResponse($stock, 'Stock modifié avec succès');
+            $stock_response = Stock::find($stock->id)->load('moto');
+            return $this->sendResponse($stock_response, 'Stock modifié avec succès');
         } catch (\Throwable $th) {
             return $this->sendError('Une erreur est survenue', $th->getMessage());
         }

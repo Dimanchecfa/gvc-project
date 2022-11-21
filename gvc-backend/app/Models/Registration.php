@@ -5,28 +5,29 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Moto extends Model
+class Registration extends Model
 {
     use HasFactory;
-
+    protected $table = 'registrations';
     protected $fillable = [
         'uuid',
-        'stock_id',
-        'numero_serie',
-        'modele',
-        'marque',
+        'sale_id',
+        'lot_id',
         'statut',
-        'couleur',
-        'is_certificat',
+        'is_withdraw',
+        'withdrawal_authorName',
+        'withdrawal_authorId',
+        
     ];
 
-    public function stock ()
+    public function sales()
     {
-        return $this->belongsTo(Stock::class , 'stock_id');
+        return $this->belongsTo(Sell::class , 'sale_id');
     }
 
     public function getRouteKeyName()
     {
         return 'uuid';
     }
+
 }

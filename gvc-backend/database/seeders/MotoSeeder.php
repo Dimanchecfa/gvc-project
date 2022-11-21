@@ -14,7 +14,7 @@ class MotoSeeder extends Seeder
      */
     public function run()
     {
-     Moto::factory(50)->create();
+     Moto::factory(100)->create();
     }
 }
 

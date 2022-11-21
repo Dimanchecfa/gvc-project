@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use App\Models\Vente;
 use App\Models\Moto;
 use App\Models\Sell;
+use Carbon\Carbon;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Str;
 //validator
 use Illuminate\Support\Facades\Validator;
@@ -146,4 +148,80 @@ class SellController extends BaseController
             );
         }
     }
+    /**
+     * get all sell statut -non_paye-
+     * @return \Illuminate\Http\Response
+     */
+
+    public function  getInprogressSales(){
+        try {
+            $ventes = Sell::with('moto' , 'commerciale')->where('statut' , 'en_cours')->get();
+            if(count($ventes) > 0) {
+                return $this->sendResponse($ventes, 'Ventes avec statut non payé');
+            } else {
+                return $this->sendResponse($ventes, 'Aucune vente non payée');
+            }
+        } catch (\Throwable $th) {
+            return  $this->sendError('Une erreur est survenue', $th->getMessage());
+        }
+    }
+     /**
+     * get all sell statut -paye-
+     * @return \Illuminate\Http\Response
+     */
+
+    public function  getFinishedSalesAndNoRegistredAndMotoCertificat(){
+        try {
+            $ventes = Sell::with('moto' , 'commerciale')->where('statut' , 'paye')->where('is_registred' , 0)->where('is_certificat' , 1)->get();
+            if(count($ventes) > 0) {
+                return $this->sendResponse($ventes, 'Ventes avec statut non payé');
+            } else {
+                return $this->sendResponse($ventes, 'Aucune vente non payée');
+            }
+        } catch (\Throwable $th) {
+            return  $this->sendError('Une erreur est survenue', $th->getMessage());
+        }
+    }
+
+    /**
+     * update inprogress sell to finished
+     * @return \Illuminate\Http\Response
+     * @param \App\Models\Sell $sell $uuid
+     */
+
+     public function updateSellPayement(Request $request, $uuid) {
+        $validate = Validator::make($request->all(), [
+            'amount' => 'required|numeric',
+        ]);
+        if($validate->fails()) {
+            return $this->sendError('Une erreur est survenue', $validate->errors());
+        }
+          
+        try {
+            $input = $request->all();
+             $sell = Sell::where('uuid', $uuid)->first();
+             $date = $sell->date_limite;
+             $now = Carbon::now();
+             $penality = 0;
+             $penalite_permonth = 25000;
+                if($now > $date) {
+                    $time = $now->diffInDays($date);
+                    $time_month = $time / 30;
+                    $penality_time = ceil($time_month);
+                    $day_rest = $penality_time - $time_month * 10;
+                    $day_rest_penality = ($day_rest * $penalite_permonth ) / 30;
+                    $penality = $penality_time * $penalite_permonth + $day_rest_penality;
+                    $sell->montant_restant = $sell->montant_restant + $penality;
+                }
+
+
+
+        } catch (\Throwable $th) {
+            return $this->sendError(
+                'Une erreur est survenue',
+                $th->getMessage()
+            );
+        }
+     }
+     
 }

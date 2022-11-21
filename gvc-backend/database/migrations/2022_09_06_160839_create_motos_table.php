@@ -22,9 +22,7 @@ class CreateMotosTable extends Migration
             $table->string('modele');
             $table->enum('statut', ['en_stock', 'vendue'])->default('en_stock');
             $table->string('couleur');
-            
-            
-
+            $table->boolean('is_certificat')->default(false);
             $table->timestamps();
         });
     }

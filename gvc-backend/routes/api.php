@@ -12,8 +12,11 @@ use App\Http\Controllers\Api\OtherFunctionController;
 use App\Http\Controllers\Api\VenteController;
 use App\Http\Controllers\Api\CommercialController;
 use App\Http\Controllers\Api\DataController;
+use App\Http\Controllers\Api\LotController;
 use App\Http\Controllers\Api\ModelController;
+use App\Http\Controllers\Api\RegistrationController;
 use App\Http\Controllers\Api\SellController;
+use App\Models\Lot;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,9 +36,20 @@ Route::ApiResource('model', ModeleController::class);
 Route::ApiResource('moto' , MotoController::class);
 Route::ApiResource('sales', SellController::class);
 Route::ApiResource('commercial' , CommercialController::class);
-
-
-
+Route::ApiResource('registration' , RegistrationController::class);
+Route::ApiResource('lot' , LotController::class);
+Route::get('registered/finished', [RegistrationController::class, 'getFinishedRegistration']);
+Route::get('registered/unfinished', [RegistrationController::class, 'getInprogressRegistration']);
+Route::get('/inprogress/sales', [SellController::class, 'getInProgressSales']);
+Route::get('/finished/sales', [SellController::class, 'getFinishedSalesAndNoRegistredAndMotoCertificat']);
+Route::post('registered/withdraw/{uuid}', [RegistrationController::class, 'withDrawRegistration']);
+Route::post('registered/add/{id}', [RegistrationController::class, 'addRegistration']);
+Route::get('motors/certified', [MotoController::class, 'getMotorsCertified']);
+Route::get('motors/uncertified', [MotoController::class, 'getMotorsUncertified']);
+Route::get('motors/registered', [MotoController::class, 'getRegisteredMoto']);
+Route::get('motors/stocked', [MotoController::class, 'getAllMotoInStock']);
+Route::post('motors/add/{id}', [MotoController::class, 'addMotorsToStock']);
+Route::get('motors/stock/{id}', [MotoController::class, 'getMotorsByStock']);
 
 
 Route::get('dashboard_price', [DashboardController::class, 'getTodaySellPrice']);

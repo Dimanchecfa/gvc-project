@@ -14,28 +14,7 @@ class CommercialeSeeder extends Seeder
      */
     public function run()
     {
-        $commerciale = array(
-            [
-            'uuid' => '1',
-            'pseudo'=> 'EBIZAF',
-            'nom' => 'BIKIENGA Zackaria',
-            'numero' => '0022999999999',
-            'logo' => 'logo.png',
-            ],
-            [
-             'uuid' => '2',
-            'pseudo'=> 'EKIENGA',
-            'nom' => 'BIKIENGA ',
-            'numero' => '0022999999999',
-            'logo' => 'logo.png',
-            ],
-            
-        
-        );
-        foreach ($commerciale as $key => $value) {
-            Commercial::create($value);
-       }
+        Commercial::factory(10)->create();
 
-
-        }
+     }
     }

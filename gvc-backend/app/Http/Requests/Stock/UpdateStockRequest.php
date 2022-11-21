@@ -29,6 +29,7 @@ class UpdateStockRequest extends FormRequest
            
             'nom_fournisseur' => 'required|string|max:255',
             'numero_fournisseur' => 'required|string|max:255',
+            'numero' => 'required|string|max:255',
         ];
     }
 

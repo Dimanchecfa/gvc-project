@@ -7,6 +7,7 @@ use App\Models\Moto;
 use App\Models\Stock;
 use App\Http\Controllers\Api\BaseController;
 use App\Http\Requests\Moto\StoreMotoRequest;
+use App\Models\Sell;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -42,7 +43,8 @@ class MotoController extends BaseController
         $moto = Moto::create($input);
         $stock->nombre_moto = $stock->nombre_moto + 1;
         $stock->save();
-        return $this->sendResponse($moto, 'Moto ajoutée avec succès');
+        $stock_response = Stock::find($stock->id)->load('moto');
+        return $this->sendResponse($stock_response, 'Moto ajoutée avec succès');
       }
 
     catch(\Exception $e) {
@@ -50,6 +52,38 @@ class MotoController extends BaseController
     }
 
     }
+
+    /**
+     * Add motors to stock
+     * @param Request $request
+     * 
+     */
+    public function addMotorsToStock(StoreMotoRequest $request , $stock_id)
+    {
+        $input = $request->all();
+        $stock = Stock::where('id', $stock_id)->first();
+        $input['stock_id'] = $stock_id;
+        $moto = Moto::create($input);
+        $stock->nombre_moto = $stock->nombre_moto + 1;
+        $stock->save();
+        $stock_response = Stock::find($stock->id)->load('moto');
+        return $this->sendResponse($stock_response, 'Moto ajoutée avec succès');
+    }
+
+
+    /**
+     * get Motors by stock id
+     */
+    public function getMotorsByStock($stock_id)
+    {
+        try {
+            $motos = Moto::where('stock_id', $stock_id)->get();
+            return $this->sendResponse($motos, 'Liste des motos récupérées avec succès');
+        } catch (\Throwable $th) {
+            return  $this->sendError('Une erreur est survenue', $th->getMessage());                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
+        }
+     }
+
 
     /**
      * Display the specified resource.
@@ -68,6 +102,22 @@ class MotoController extends BaseController
     
     
         
+    }
+    /**
+     * get motors stocked in a stock
+     */
+    public function getAllMotoInStock()
+    {
+        try {
+            $motos = Moto::where('statut', 'en_stock')->get();
+            if(count($motos) > 0) {
+                return $this->sendResponse($motos, 'Motos en stock');
+            } else {
+                return $this->sendResponse($motos, 'Aucune moto en stock');
+            }
+        } catch (\Throwable $th) {
+            return  $this->sendError('Une erreur est survenue', $th->getMessage());
+        }
     }
 
     /**
@@ -146,5 +196,51 @@ class MotoController extends BaseController
         }
     }
 
-    
+    /**
+     * get certified motors
+     * 
+     */
+    public function getMotorsCertified()
+    {
+        try {
+            $motos = Moto::where('is_certificat', 1)->get();
+            return $this->sendResponse($motos, 'Liste des motos certifiées');
+        } catch (\Throwable $th) {
+            return $this->sendError('Une erreur est survenue', $th->getMessage());
+        }
+    }    
+
+    /**
+     * get uncertified motors
+     * 
+     */
+    public function getMotorsUncertified()
+    {
+        try {
+            $motos = Moto::where('is_certificat', 0)->get();
+            return $this->sendResponse($motos, 'Liste des motos non certifiées');
+        } catch (\Throwable $th) {
+            return $this->sendError('Une erreur est survenue', $th->getMessage());
+        }
+    }
+
+    /**
+     * update is_certificat false to true
+     * @return $uuid
+     */
+    public function updateCertificat($uuid){
+        try {
+            $moto = Moto::where('uuid', $uuid)->first();
+            $moto->is_certificat = 1;
+            $moto->save();
+            if($moto->statut == 'vendue') {
+                $sell = Sell::where('moto_id', $moto->id)->first();
+                $sell->is_certificat = 1;
+                $sell->save();
+            }
+            return $this->sendResponse($moto, 'Moto certifiée avec succès');
+        } catch (\Throwable $th) {
+            return $this->sendError('Une erreur est survenue', $th->getMessage());
+        }
+    }
 }

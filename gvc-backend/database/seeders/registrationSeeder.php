@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\Registration;
 use Illuminate\Database\Seeder;
-use App\Models\Stock;
 
-class StockSeeder extends Seeder
+class registrationSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,7 +14,6 @@ class StockSeeder extends Seeder
      */
     public function run()
     {
-        Stock::factory(20)->create();
-
+        Registration::factory(30)->create();
     }
 }

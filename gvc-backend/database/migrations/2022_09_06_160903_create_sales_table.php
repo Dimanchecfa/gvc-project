@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateVentesTable extends Migration
+class CreateSalesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateVentesTable extends Migration
      */
     public function up()
     {
-        Schema::create('ventes', function (Blueprint $table) {
+        Schema::create('sales', function (Blueprint $table) {
             $table->id(); 
             $table->string('uuid')->unique();
             $table->string('nom_client');
@@ -28,6 +28,9 @@ class CreateVentesTable extends Migration
             $table->enum('statut', ['en_cours', 'payé',]);
             $table->date('date_versement')->nullable();
             $table->string('numero_facture')->unique()->nullable();
+            $table->boolean('is_certificat')->default(false);
+            $table->boolean('with_registration')->default(true);
+            $table->boolean('is_registred')->default(false);
            
 
 

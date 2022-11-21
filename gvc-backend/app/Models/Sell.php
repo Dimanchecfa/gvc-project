@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sell extends Model
 {
     use HasFactory;
-    protected $table = 'ventes';
+    protected $table = 'sales';
     protected $fillable = [
         'uuid',
         'nom_client',
@@ -23,6 +23,9 @@ class Sell extends Model
         'statut',
         'date_versement',
         'numero_facture',
+        'is_certificat',
+        'with_registration',
+        'is_registred',
         
 
 
