@@ -68,11 +68,6 @@ class SellController extends BaseController
                     } else {
                         $input['is_certificat'] = 0;
                     }
-                    if ($input['montant_verse'] == $input['prix_vente']) {
-                        $input['statut_payement'] = 'termine';
-                    } else {
-                        $input['statut_payement'] = 'en_cours';
-                    }
 
                     $sell = Sell::create($input);
                     $moto = Moto::where('id', $request->input('moto_id'))->first();

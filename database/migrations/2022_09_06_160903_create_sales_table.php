@@ -26,7 +26,7 @@ class CreateSalesTable extends Migration
             $table->string('prix_vente');
             $table->string('montant_verse');
             $table->string('montant_restant')->nullable();
-            $table->enum('statut_payement', ['en_cours', 'termine'])->default('termine');
+            $table->enum('statut_payement', ['en_cours', 'termine']);
             $table->date('date_versement')->nullable();
             $table->string('penalite')->nullable();
             $table->boolean('is_certificat')->default(false);
