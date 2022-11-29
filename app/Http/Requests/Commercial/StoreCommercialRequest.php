@@ -5,6 +5,7 @@ namespace App\Http\Requests\Commercial;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
+use Illuminate\Support\Str;
 
 class StoreCommercialRequest extends FormRequest
 {
@@ -19,7 +20,7 @@ class StoreCommercialRequest extends FormRequest
     }
 
 
-      /**
+    /**
      * Prepare the data for validation.
      *
      * @return void
@@ -30,7 +31,7 @@ class StoreCommercialRequest extends FormRequest
             'uuid' => Str::uuid(),
         ]);
     }
-  /**
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array
@@ -40,8 +41,13 @@ class StoreCommercialRequest extends FormRequest
         // dd($this);
         return [
             'nom' => 'required',
+            'prenom' => 'required',
             'numero' => 'required',
-            'pseudo' => 'required',    
+            'identifiant' => 'required',
+            'numero_ifu' => 'required',
+            'pseudo' => 'required',
+            'adresse' => 'required',
+            'logo' => 'file|image|mimes:jpeg,png,jpg,gif,svg|max:2048|nullable',
         ];
     }
 

@@ -12,6 +12,7 @@ class Sell extends Model
     protected $fillable = [
         'uuid',
         'nom_client',
+        'prenom_client',
         'numero_client',
         'adresse_client',
         'identifiant_client',
@@ -20,11 +21,9 @@ class Sell extends Model
         'prix_vente',
         'montant_verse',
         'montant_restant',
-        'statut',
         'date_versement',
         'numero_facture',
         'is_certificat',
-        'with_registration',
         'registration_statut',
 
 
@@ -37,8 +36,15 @@ class Sell extends Model
     }
     public function commerciale()
     {
-        return $this->belongsTo(Commercial::class, 'commerciale_id');
+        return $this->belongsTo(Commercial::class, 'commercial_id');
     }
+    public function sales()
+    {
+        return $this->hasMany(Registration::class, 'sale_id');
+    }
+
+
+
     public function getRouteKeyName()
     {
         return 'uuid';

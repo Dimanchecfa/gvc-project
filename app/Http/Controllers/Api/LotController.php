@@ -42,9 +42,9 @@ class LotController extends BaseController
     {
         $input = $request->all();
         $validator = Validator::make($input, [
-            'numero_lot' => 'required',
-            'nom_depositeur' => 'required',
-            'numero_depositeur' => 'required',
+
+            'nom_depositaire' => 'required',
+            'numero_depositaire' => 'required',
 
         ]);
         if ($validator->fails()) {
@@ -106,8 +106,8 @@ class LotController extends BaseController
         $input = $request->all();
         $validator = Validator::make($input, [
             'numero_lot' => 'required',
-            'nom_depositeur' => 'required',
-            'numero_depositeur' => 'required',
+            'nom_depositaire' => 'required',
+            'numero_depositaire' => 'required',
 
         ]);
         if ($validator->fails()) {

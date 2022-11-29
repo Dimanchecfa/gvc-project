@@ -12,8 +12,13 @@ class Commercial extends Model
     protected $fillable = [
         'uuid',
         'nom',
+        'prenom',
         'numero',
+        'numero2',
+        'identifiant',
+        'numero_ifu',
         'pseudo',
+        'adresse',
         'logo',
     ];
 

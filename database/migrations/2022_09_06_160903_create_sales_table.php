@@ -32,7 +32,6 @@ class CreateSalesTable extends Migration
             $table->boolean('is_certificat')->default(false);
             $table->string('numero_facture')->unique()->nullable();
             $table->enum('registration_statut', ['pas_enregistre', 'enregistre', 'termine',]);
-            $table->boolean('with_registration')->default(true);
 
 
 

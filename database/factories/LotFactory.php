@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Registration;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class LotFactory extends Factory
@@ -16,10 +17,9 @@ class LotFactory extends Factory
         return [
             'uuid' => $this->faker->uuid,
             'numero_lot' => $this->faker->numberBetween(1, 100),
-            'nom_depositeur' => $this->faker->name(),
-            'numero_depositeur' => $this->faker->phoneNumber(),
-            'nombre_registrations' => $this->faker->randomNumber(2),
+            'nom_depositaire' => $this->faker->name(),
+            'numero_depositaire' => $this->faker->phoneNumber(),
+            'nombre_registrations' => $this->faker->randomNumber(1, Registration::all()->count()),
         ];
-        
     }
 }

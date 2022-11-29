@@ -16,18 +16,18 @@ class Registration extends Model
         'statut',
         'is_withdraw',
         'withdrawal_authorName',
+        'withdrawal_authorNumber',
         'withdrawal_authorId',
-        
+
     ];
 
     public function sales()
     {
-        return $this->belongsTo(Sell::class , 'sale_id');
+        return $this->belongsTo(Sell::class, 'sale_id');
     }
 
     public function getRouteKeyName()
     {
         return 'uuid';
     }
-
 }

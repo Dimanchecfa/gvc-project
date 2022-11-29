@@ -21,7 +21,7 @@ class CommercialController extends BaseController
     {
         try {
             $commerciales = Commercial::all();
-           return $this->sendResponse($commerciales, 'Liste des commerciales récupérées avec succès');
+            return $this->sendResponse($commerciales, 'Liste des commerciales récupérées avec succès');
         } catch (\Throwable $th) {
             return $this->sendError('Une erreur est survenue', $th->getMessage());
         }
@@ -36,19 +36,14 @@ class CommercialController extends BaseController
      */
     public function store(StoreCommercialRequest $request)
     {
-        $validate = Validator::make($request->all(), [
-           'nom' => 'required',
-           'numero' => 'required',
-            'pseudo' => 'required',
-        ]);
-        if($validate->fails()) {
-            return $this->sendError('Veuillez remplir tous les champs', $validate->errors() , 400);
-        }
+
         try {
-          $input = $request->all();
-          
-              $commerciale = Commercial::create($input);
-                return $this->sendResponse($commerciale, 'Commerciale créée avec succès');
+            $input = $request->all();
+            if ($request->hasFile('logo')) {
+                $input['logo'] = $request->file('logo')->store('public/commerciale');
+            }
+            $commerciale = Commercial::create($input);
+            return $this->sendResponse($commerciale, 'Commerciale créée avec succès');
         } catch (\Throwable $th) {
             return $this->sendError('Une erreur est survenue', $th->getMessage());
         }
@@ -66,10 +61,10 @@ class CommercialController extends BaseController
             $commerciale = Commercial::find($id);
             return $this->sendResponse($commerciale, 'Commerciale récupérée avec succès');
         } catch (\Throwable $th) {
-           return $this->sendError('Une erreur est survenue', $th->getMessage());
+            return $this->sendError('Une erreur est survenue', $th->getMessage());
         }
     }
-   
+
 
     /**
      * Update the specified resource in storage.
@@ -87,7 +82,6 @@ class CommercialController extends BaseController
         } catch (\Throwable $th) {
             return $this->sendError('Une erreur est survenue', $th->getMessage());
         }
-         
     }
 
     /**
@@ -105,5 +99,4 @@ class CommercialController extends BaseController
             return $this->sendError('Une erreur est survenue', $th->getMessage());
         }
     }
-  
 }

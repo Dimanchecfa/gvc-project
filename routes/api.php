@@ -43,7 +43,7 @@ Route::get('registered/finished', [RegistrationController::class, 'getFinishedRe
 Route::get('registered/unfinished', [RegistrationController::class, 'getInprogressRegistration']);
 Route::get('/inprogress/sales', [SellController::class, 'getInProgressSales']);
 Route::get('/finished/sales', [SellController::class, 'getFinishedSalesAndNoRegistredAndMotoCertificat']);
-Route::post('registered/withdraw/{uuid}', [RegistrationController::class, 'withDrawRegistration']);
+Route::post('registered/withdraw/{id}', [RegistrationController::class, 'withDrawRegistration']);
 Route::post('registered/add/{id}', [RegistrationController::class, 'addRegistration']);
 Route::get('motors/certified', [MotoController::class, 'getMotorsCertified']);
 Route::get('motors/uncertified', [MotoController::class, 'getMotorsUncertified']);
@@ -53,6 +53,9 @@ Route::post('motors/add/{id}', [MotoController::class, 'addMotorsToStock']);
 Route::get('motors/stock/{id}', [MotoController::class, 'getMotorsByStock']);
 Route::post('certified/motors', [MotoController::class, 'certifiedMoto']);
 Route::get("generate/lot/pdf/{lot_id}", [RegistrationPdfController::class, 'generateLotPdf']);
+Route::get("registration/lot/{lot_id}", [RegistrationController::class, 'fetchRegistrationByLot']);
+Route::get("registered/registration", [RegistrationController::class, 'fetchRegisteredRegistration']);
+Route::post('update/payment/{id}', [SellController::class, 'updatePayment']);
 
 
 Route::get('dashboard_price', [DashboardController::class, 'getTodaySellPrice']);

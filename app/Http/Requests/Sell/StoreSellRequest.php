@@ -40,6 +40,7 @@ class StoreSellRequest extends FormRequest
     {
         return [
             'nom_client' => 'required|string|max:255',
+            'prenom_client' => 'required|string|max:255',
             'numero_client' => 'required|string|max:255',
             'adresse_client' => 'required|string|max:255',
             'identifiant_client' => 'required|string|max:255',
@@ -47,7 +48,6 @@ class StoreSellRequest extends FormRequest
             'moto_id' => 'required|integer',
             'prix_vente' => 'required|string|max:255',
             'montant_verse' => 'required|string|max:255',
-            'statut' => 'required|string|max:255',
         ];
     }
     public function failedValidation(Validator $validator)

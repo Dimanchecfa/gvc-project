@@ -21,6 +21,7 @@ class CreateRegistrationsTable extends Migration
             $table->enum('statut', ['en_cours', 'termine',]);
             $table->boolean('is_withdraw')->default(false);
             $table->string('withdrawal_authorName')->nullable();
+            $table->string('withdrawal_authorNumber')->nullable();
             $table->string('withdrawal_authorId')->nullable();
 
             $table->timestamps();

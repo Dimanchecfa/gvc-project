@@ -38,8 +38,6 @@ class SellController extends BaseController
         }
     }
 
-
-
     /**
      * Store a newly created resource in storage.
      *
@@ -50,42 +48,54 @@ class SellController extends BaseController
     {
         $input = $request->all();
         $numero = Moto::where('id', $input['moto_id'])->first();
-        if ($numero) {
-            if ($numero->statut == 'vendue') {
-                return $this->sendResponse(
-                    $numero,
-                    'Cette moto a déjà été vendue'
-                );
-            }
-            try {
-                if (Sell::all()->count() < 1) {
-                    $facture = 'FAC-0001';
-                } else {
-                    $lastFacture = Sell::orderBy('id', 'desc')->first();
-                    $facture = 'FAC-' . '000' . ($lastFacture->id + 1);
+      try{
+            if ($numero) {
+                if ($numero->statut == 'vendue') {
+                    return $this->sendError(
+                        'Cette moto a déjà été vendue'
+                    );
                 }
-                $input['numero_facture'] = $facture;
+                try {
+                    if (Sell::all()->count() < 1) {
+                        $facture = 'FAC-0001';
+                    } else {
+                        $lastFacture = Sell::orderBy('id', 'desc')->first();
+                        $facture = 'FAC-' . '000' . ($lastFacture->id + 1);
+                    }
+                    $input['numero_facture'] = $facture;
+                    if ($numero->is_certificat == 1) {
+                        $input['is_certificat'] = 1;
+                    } else {
+                        $input['is_certificat'] = 0;
+                    }
+                    if ($input['montant_verse'] == $input['prix_vente']) {
+                        $input['statut_payement'] = 'termine';
+                    } else {
+                        $input['statut_payement'] = 'en_cours';
+                    }
 
-                $sell = Sell::create($input);
-                $moto = Moto::where(
-                    'id',
-                    $request->input('moto_id')
-                )->first();
-                $moto->statut = 'vendue';
-                $moto->save();
-                return $this->sendResponse($sell, 'Vente ajoutée avec succès');
-            } catch (\Throwable $th) {
-                return $this->sendError(
-                    'Une erreur est survenue',
-                    $th->getMessage()
-                );
+                    $sell = Sell::create($input);
+                    $moto = Moto::where('id', $request->input('moto_id'))->first();
+                    $moto->statut = 'vendue';
+                    $moto->save();
+                    return $this->sendResponse($sell, 'Vente ajoutée avec succès');
+                } catch (\Throwable $th) {
+                    return $this->sendError(
+                        'Une erreur est survenue',
+                        $th->getMessage()
+                    );
+                }
+            } else {
+                return $this->sendResponse($numero, 'Cette moto n\'existe pas');
             }
-        } else {
-            return $this->sendResponse(
-                $numero,
-                'Cette moto n\'existe pas'
-            );
-        }
+
+      } catch (\Throwable $th) {
+          return $this->sendError(
+              'Une erreur est survenue',
+              $th->getMessage()
+          );
+      }
+
     }
 
     /**
@@ -153,17 +163,25 @@ class SellController extends BaseController
      * @return \Illuminate\Http\Response
      */
 
-    public function  getInprogressSales()
+    public function getInprogressSales()
     {
         try {
-            $ventes = Sell::with('moto', 'commerciale')->where('statut', 'en_cours')->get();
+            $ventes = Sell::with('moto', 'commerciale')
+                ->where('statut_payement', 'en_cours')
+                ->get();
             if (count($ventes) > 0) {
-                return $this->sendResponse($ventes, 'Ventes avec statut non payé');
+                return $this->sendResponse(
+                    $ventes,
+                    'Ventes avec statut non payé'
+                );
             } else {
                 return $this->sendResponse($ventes, 'Aucune vente non payée');
             }
         } catch (\Throwable $th) {
-            return  $this->sendError('Une erreur est survenue', $th->getMessage());
+            return $this->sendError(
+                'Une erreur est survenue',
+                $th->getMessage()
+            );
         }
     }
     /**
@@ -171,22 +189,31 @@ class SellController extends BaseController
      * @return \Illuminate\Http\Response
      */
 
-    public function  getFinishedSalesAndNoRegistredAndMotoCertificat()
+    public function getFinishedSalesAndNoRegistredAndMotoCertificat()
     {
         try {
-            $sell = Sell::with('moto', 'commerciale')->where(function ($query) {
-                $query->where('statut_payement', 'termine')
-                    ->orWhere('registration_statut', 'non_enregistree')
-                    ->orWhere('is_certificat', 1);
-            })->get();
+            $sell = Sell::with('moto', 'commerciale')
+                ->where(function ($query) {
+                    $query
+                        ->where('statut_payement', 'termine')
+                        ->Where('registration_statut', 'pas_enregistre')
+                        ->Where('is_certificat', 1);
+                })
+                ->get();
 
             if (count($sell) > 0) {
-                return $this->sendResponse($sell, 'Ventes avec statut non payé');
+                return $this->sendResponse(
+                    $sell,
+                    'Ventes avec statut non payé'
+                );
             } else {
                 return $this->sendResponse($sell, 'Aucune vente non payée');
             }
         } catch (\Throwable $th) {
-            return  $this->sendError('Une erreur est survenue', $th->getMessage());
+            return $this->sendError(
+                'Une erreur est survenue',
+                $th->getMessage()
+            );
         }
     }
 
@@ -202,7 +229,10 @@ class SellController extends BaseController
             'amount' => 'required|numeric',
         ]);
         if ($validate->fails()) {
-            return $this->sendError('Une erreur est survenue', $validate->errors());
+            return $this->sendError(
+                'Une erreur est survenue',
+                $validate->errors()
+            );
         }
 
         try {
@@ -218,9 +248,44 @@ class SellController extends BaseController
                 $penality_time = ceil($time_month);
                 $day_rest = $penality_time - $time_month * 10;
                 $day_rest_penality = ($day_rest * $penalite_permonth) / 30;
-                $penality = $penality_time * $penalite_permonth + $day_rest_penality;
+                $penality =
+                    $penality_time * $penalite_permonth + $day_rest_penality;
                 $sell->montant_restant = $sell->montant_restant + $penality;
             }
+        } catch (\Throwable $th) {
+            return $this->sendError(
+                'Une erreur est survenue',
+                $th->getMessage()
+            );
+        }
+    }
+
+    public function updatePayment(Request $request, $id)
+    {
+        $validate = Validator::make($request->all(), [
+            'montant_a_payer' => 'required|numeric',
+        ]);
+        if ($validate->fails()) {
+            return $this->sendError(
+                'Une erreur est survenue',
+                $validate->errors()
+            );
+        }
+
+        try {
+            $input = $request->all();
+            $sell = Sell::where('id', $id)->first();
+            $sell->montant_verse =
+                $sell->montant_verse + $input['montant_a_payer'];
+            $sell->montant_restant =
+                $sell->montant_restant - $input['montant_a_payer'];
+            if ($sell->montant_restant == 0) {
+                $sell->statut_payement = 'termine';
+                $sell->montant_restant = null;
+            }
+            $sell->save();
+
+            return $this->sendResponse($sell, 'Vente mise à jour avec succès');
         } catch (\Throwable $th) {
             return $this->sendError(
                 'Une erreur est survenue',

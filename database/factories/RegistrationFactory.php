@@ -18,12 +18,12 @@ class RegistrationFactory extends Factory
         $withdrawing = $this->faker->randomElement(['en_cours', 'termine']);
         return [
             'uuid' => $this->faker->uuid,
-            'sale_id' => Sell::all()->unique()->random()->id,
+            'sale_id' => Sell::where('registration_statut', 'pas_enregistre')->get()->unique()->random()->id,
             'lot_id' => Lot::all()->unique()->random()->id,
             'statut' => $withdrawing,
             'is_withdraw' => $withdrawing == 'termine' ? true : false,
             'withdrawal_authorName' => $withdrawing == 'termine' ? $this->faker->name : null,
             'withdrawal_authorId' => $withdrawing == 'termine' ? $this->faker->creditCardNumber() : null,
-    ];
+        ];
     }
 }

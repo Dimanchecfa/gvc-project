@@ -33,7 +33,6 @@ class SellFactory extends Factory
             'is_certificat' => $this->faker->boolean,
             'penalite' => $statut == 'en_cours' ? $this->faker->numberBetween(100000, 1000000) : null,
             'numero_facture' => $this->faker->unique()->numberBetween(100000, 1000000),
-            'with_registration' => $this->faker->boolean,
             'registration_statut' => $this->faker->randomElement(['pas_enregistre', 'enregistre', 'termine']),
         ];
     }

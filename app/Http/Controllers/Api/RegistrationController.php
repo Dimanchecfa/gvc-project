@@ -37,7 +37,7 @@ class RegistrationController extends BaseController
                 'sales.moto',
                 'sales.commerciale'
             )
-                ->where('statut', 'termine')
+                ->where('statut', 'termine')->where('is_withdraw', false)
                 ->get();
             return $this->sendResponse(
                 $registration,
@@ -72,10 +72,11 @@ class RegistrationController extends BaseController
      * @param  \Illuminate\Http\Request  $request
      */
 
-    public function withDrawRegistration(Request $request, $uuid)
+    public function withDrawRegistration(Request $request, $id)
     {
         $validate = Validator::make($request->all(), [
             'withdrawal_authorName' => 'required',
+            'withdrawal_authorNumber' => 'required',
             'withdrawal_authorId' => 'required',
         ]);
         if ($validate->fails()) {
@@ -83,23 +84,25 @@ class RegistrationController extends BaseController
         }
 
         try {
-            $registration = Registration::where('uuid', $uuid)->first();
+            $registration = Registration::where('id', $id)->first();
             if ($registration) {
                 if ($registration->statut == 'termine') {
-                    return $this->sendError(
-                        'Cette immatriculation est déjà retiree'
+                    $registration->update([
+                        'statut' => 'termine',
+                        'is_withdraw' => true,
+                        'withdrawal_authorName' => $request->withdrawal_authorName,
+                        'withdrawal_authorNumber' => $request->withdrawal_authorId,
+                        'withdrawal_authorId' => $request->withdrawal_authorId,
+                    ]);
+                    return $this->sendResponse(
+                        $registration,
+                        'Immatriculation retirée avec succès'
                     );
                 }
 
-                $registration->update([
-                    'statut' => 'termine',
-                    'is_withdraw' => true,
-                    'withdrawal_authorName' => $request->withdrawal_authorName,
-                    'withdrawal_authorId' => $request->withdrawal_authorId,
-                ]);
-                return $this->sendResponse(
-                    $registration,
-                    'Immatriculation retirée'
+
+                return $this->sendError(
+                    'Cette immatriculation n\'est pas terminée'
                 );
             } else {
                 return $this->sendError('Immatriculation non trouvée');
@@ -139,7 +142,7 @@ class RegistrationController extends BaseController
                         'statut' => 'en_cours',
                         'is_withdraw' => false,
                     ]);
-                    $sell->is_registred = 1;
+                    $sell->registration_statut = 'enregistre';
                     $sell->save();
                 } else {
                     return $this->sendError(
@@ -158,6 +161,26 @@ class RegistrationController extends BaseController
             return $this->sendResponse(
                 $registration,
                 'Toute  les immatriculations ont été ajoutées'
+            );
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+
+    public function fetchRegistrationByLot($lot_id)
+    {
+        try {
+            $registration = Registration::with(
+                'sales',
+                'sales.moto',
+                'sales.commerciale'
+            )
+                ->where('lot_id', $lot_id)
+                ->get();
+            return $this->sendResponse(
+                $registration,
+                'Liste des immatriculations par lot'
             );
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage());
@@ -190,12 +213,20 @@ class RegistrationController extends BaseController
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  Registration $registration
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Registration $registration)
     {
-        //
+        try {
+            $registration->update($request->all());
+            return $this->sendResponse(
+                $registration,
+                'Immatriculation mise à jour'
+            );
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 
     /**
@@ -207,5 +238,46 @@ class RegistrationController extends BaseController
     public function destroy($id)
     {
         //
+    }
+
+    public function updateRegistration(Request $request)
+    {
+
+        try {
+            $input = $request->all();
+            foreach ($input as $key => $value) {
+                $registration = Registration::where('id', $value)->first();
+                if ($registration) {
+                    $registration->update([
+                        'statut' => 'termine',
+                        'is_withdraw' => false,
+                        'withdrawal_authorName' => null,
+                        'withdrawal_authorNumber' => null,
+                        'withdrawal_authorId' => null,
+                    ]);
+                } else {
+                    return $this->sendError(
+                        $value . ' n\'existe pas dans la liste des immatriculations'
+                    );
+                }
+            }
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
+    }
+
+    public function fetchRegisteredRegistration()
+    {
+        try {
+            $registration = Registration::with('sales', 'sales.moto', 'sales.commerciale')
+                ->where('statut', 'en_cours')
+                ->whereHas('sales', function ($query) {
+
+                    $query->where('registration_statut', 'enregistre');
+                })->get();
+            return $this->sendResponse($registration, 'Liste d\'immatriculation enregistrée');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage());
+        }
     }
 }

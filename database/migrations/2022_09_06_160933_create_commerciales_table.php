@@ -16,10 +16,17 @@ class CreateCommercialesTable extends Migration
         Schema::create('commerciales', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
-            $table->string('pseudo')->unique();
             $table->string('nom');
+            $table->string('prenom');
             $table->string('numero');
+            $table->string('numero2');
+            $table->string('identifiant');
+            $table->string('numero_ifu');
+            $table->string('pseudo');
+            $table->string('adresse');
             $table->string('logo')->nullable();
+
+
             $table->timestamps();
         });
     }

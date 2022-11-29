@@ -12,8 +12,8 @@ class Lot extends Model
     protected $fillable = [
         'uuid',
         'numero_lot',
-        'nom_depositeur',
-        'numero_depositeur',
+        'nom_depositaire',
+        'numero_depositaire',
         'nombre_registrations',
     ];
 

@@ -17,8 +17,8 @@ class CreateLotsTable extends Migration
             $table->id();
             $table->string('uuid')->unique();
             $table->string('numero_lot');
-            $table->string('nom_depositeur');
-            $table->string('numero_depositeur');
+            $table->string('nom_depositaire');
+            $table->string('numero_depositaire');
             $table->string('nombre_registrations');
             $table->timestamps();
         });
