@@ -15,5 +15,11 @@ class registrationSeeder extends Seeder
     public function run()
     {
         Registration::factory(30)->create();
+
+        $registration = array(
+            [
+                ''
+            ]
+        )
     }
 }
